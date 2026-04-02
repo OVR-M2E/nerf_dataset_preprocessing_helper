@@ -1,8 +1,15 @@
 import os
+import re
 import argparse
 import shutil
 import subprocess
 from ImageSelector import ImageSelector
+
+def _numeric_sort_key(path):
+    """Sort by numeric value extracted from filename, falling back to lexicographic."""
+    name = os.path.splitext(os.path.basename(path))[0]
+    m = re.search(r'(\d+)', name)
+    return (int(m.group(1)),) if m else (float('inf'), name)
 
 def extract_frames(input_vid, output_path):
     if not args.yes:
@@ -27,11 +34,11 @@ def main(input_path, output_path, img_exts, target_count, groups=None, scalar=No
     # Check if input_path is a folder or video
     if os.path.isdir(input_path):
         images = [os.path.join(input_path, img) for img in os.listdir(input_path) if img.lower().endswith(img_exts)]
-        images.sort()
+        images.sort(key=_numeric_sort_key)
     else:
         extract_frames(input_path, output_path)
         images = [os.path.join(output_path, img) for img in os.listdir(output_path) if img.endswith('.jpg')]
-        images.sort()
+        images.sort(key=_numeric_sort_key)
 
     total_images = len(images)
     print(f"Found a total of {total_images} images to work on.")
