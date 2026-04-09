@@ -6,10 +6,10 @@ import subprocess
 from ImageSelector import ImageSelector
 
 def _numeric_sort_key(path):
-    """Sort by numeric value extracted from filename, falling back to lexicographic."""
+    """Sort by all numeric groups in filename as a tuple, falling back to lexicographic."""
     name = os.path.splitext(os.path.basename(path))[0]
-    m = re.search(r'(\d+)', name)
-    return (int(m.group(1)),) if m else (float('inf'), name)
+    nums = re.findall(r'\d+', name)
+    return tuple(int(n) for n in nums) if nums else (float('inf'),)
 
 def extract_frames(input_vid, output_path):
     if not args.yes:
